@@ -1,35 +1,27 @@
 version: 2.1
 orbs:
-  aws-s3: circleci/aws-s3@1.0.7
-commands:
-  persist_docs:
+  aws-s3: circleci/aws-s3@1.0.15
+
+jobs:
+  test_and_build_docs:
+    docker:
+      - image: libmir/circle-dlang
     parameters:
-        from:
-          description: "Folder with generated docs"
-          type: string
+      to:
+        description: "Folder with generated docs"
+        type: string
+        default: web
     steps:
+      - checkout
+      - run: cp -r /repo/* ./  && cat meson.build.1 >> meson.build
+      - run: meson _build_dir_ --default-library=static -D with_test=true -D with_doc=true
+      - run: ninja -C _build_dir_ test -j1
+      - run: cp -r _build_dir_/web <<parameters.to>> && rm -rf _build_dir_
       - persist_to_workspace:
           root: ~/project
           paths:
-            - <<parameters.from>>
-
-  upload_docs_cmd:
-    parameters:
-      to:
-        description: "S3 domain"
-        type: string
-      from:
-        description: "Folder with generated docs"
-        type: string
-    steps:
-      - attach_workspace:
-          at: ~/project
-      - aws-s3/sync:
-          from: '<<parameters.from>>'
-          to: 's3://<<parameters.to>>'
-          overwrite: true
-jobs:
-  upload_docs_job:
+            - <<parameters.to>>
+  upload_docs:
     docker:
       - image: circleci/python:latest
     parameters:
@@ -39,7 +31,11 @@ jobs:
       from:
         description: "Folder with generated docs"
         type: string
+        default: web
     steps:
-      - upload_docs_cmd:
-          to: '<<parameters.to>>'
-          from: '<<parameters.from>>'
+      - attach_workspace:
+          at: ~/project
+      - aws-s3/sync:
+          from: <<parameters.from>>
+          to: s3://<<parameters.to>>
+          overwrite: true
