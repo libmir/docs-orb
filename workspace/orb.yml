@@ -20,7 +20,7 @@ jobs:
       - run: cp -r /repo/* ./ && cat meson.build.1 >> meson.build && cat meson_options.txt.1 >> meson_options.txt
       - run: meson _build_dir_ --default-library=static -D with_test=true -D with_doc=true -D company=<<parameters.company>>
       - run: ninja -C _build_dir_ test -j1
-      - run: cp -r _build_dir_/web <<parameters.to>> && rm -rf _build_dir_
+      - run: cp -r _build_dir_/web/* <<parameters.to>>/ && rm -rf _build_dir_
       - persist_to_workspace:
           root: ~/project
           paths:
