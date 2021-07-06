@@ -28,15 +28,6 @@ jobs:
   test:
     docker:
       - image: libmir/circle-dlang
-    parameters:
-      to:
-        description: "Folder with generated docs"
-        type: string
-        default: web
-      company:
-        description: "GitHub organisation"
-        type: string
-        default: libmir
     steps:
       - checkout
       - run: cp -r /repo/* ./ && cat meson.build.1 >> meson.build && cat meson_options.txt.1 >> meson_options.txt
