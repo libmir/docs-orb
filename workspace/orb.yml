@@ -4,6 +4,7 @@ orbs:
 
 jobs:
   test_and_build_docs:
+    resource_class: arm.medium
     docker:
       - image: libmir/circle-dlang
     parameters:
@@ -26,6 +27,7 @@ jobs:
           paths:
             - <<parameters.to>>
   test:
+    resource_class: arm.medium
     docker:
       - image: libmir/circle-dlang
     steps:
